@@ -14,14 +14,14 @@ if [[ $(oc get operatorgroup -n "${NAMESPACE}" -o jsonpath='{range .items[*]}{.m
 apiVersion: operators.coreos.com/v1
 kind: OperatorGroup
 metadata:
-  name: ${NAMESPACE}
+  name: ${NAMESPACE}-operator-group
 spec:
   targetNamespaces:
     - ${NAMESPACE}
 "
 
   echo "${operatorgroup}" | oc apply -n "${NAMESPACE}" -f -
-
-  echo "Creating subscription"
-  oc apply -n "${NAMESPACE}" -f "${CONFIG_DIR}/subscription.yaml"
 fi
+
+echo "Creating subscription"
+oc apply -n "${NAMESPACE}" -f "${CONFIG_DIR}/subscription.yaml"
