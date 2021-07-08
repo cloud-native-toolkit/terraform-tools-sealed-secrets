@@ -9,7 +9,7 @@ SECRET_NAME="$2"
 
 # Check for CRD
 CREATE_CRD="true"
-if ! kubectl explain sealedsecretcontroller.bitnami.com 1> /dev/null 2> /dev/null; then
+if kubectl explain sealedsecretcontroller.bitnami.com 1> /dev/null 2> /dev/null; then
   echo "CRDs already installed. Setting CREATE_CRD flag to false"
   CREATE_CRD="false"
 fi
