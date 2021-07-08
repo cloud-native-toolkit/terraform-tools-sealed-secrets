@@ -12,7 +12,7 @@ spec:
     fsGroup: ''
     runAsUser: ''
   rbac:
-    create: true
+    create: CREATE_RBAC
     pspEnabled: false
   crd:
     create: CREATE_CRD
