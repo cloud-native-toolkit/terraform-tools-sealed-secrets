@@ -5,8 +5,10 @@ CONFIG_DIR=$(cd "${SCRIPT_DIR}/../config"; pwd -P)
 
 NAMESPACE="$1"
 
-echo "Creating project"
-oc new-project "${NAMESPACE}"
+if ! kubectl get namespace "${NAMESPACE}" 1> /dev/null 2> /dev/null; then
+  echo "Creating project"
+  oc new-project "${NAMESPACE}"
+fi
 
 if [[ $(oc get operatorgroup -n "${NAMESPACE}" -o custom-columns=NAME:.metadata.name | grep -vc "NAME") -eq 0 ]]; then
   echo "Creating operator group"
