@@ -85,5 +85,9 @@ resource null_resource wait_for_deployment {
 
   provisioner "local-exec" {
     command = "${path.module}/scripts/wait-for-deployment.sh ${var.namespace} ${local.deployment_name}"
+
+    environment = {
+      KUBECONFIG = var.cluster_config_file
+    }
   }
 }
