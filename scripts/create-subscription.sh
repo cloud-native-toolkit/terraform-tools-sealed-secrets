@@ -8,8 +8,9 @@ NAMESPACE="$1"
 echo "Creating project"
 oc new-project "${NAMESPACE}"
 
-echo "Creating operator group"
-operatorgroup="
+if [[ $(oc get operatorgroup -n "${NAMESPACE}" -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' | wc -l) -eq 0 ]]; then
+  echo "Creating operator group"
+  operatorgroup="
 apiVersion: operators.coreos.com/v1
 kind: OperatorGroup
 metadata:
@@ -19,8 +20,8 @@ spec:
     - ${NAMESPACE}
 "
 
-echo "${operatorgroup}" | oc apply -n "${NAMESPACE}" -f -
+  echo "${operatorgroup}" | oc apply -n "${NAMESPACE}" -f -
 
-echo "Creating subscription"
-oc apply -n "${NAMESPACE}" -f "${CONFIG_DIR}/subscription.yaml"
-
+  echo "Creating subscription"
+  oc apply -n "${NAMESPACE}" -f "${CONFIG_DIR}/subscription.yaml"
+fi
