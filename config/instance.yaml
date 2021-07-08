@@ -15,7 +15,7 @@ spec:
     create: true
     pspEnabled: false
   crd:
-    create: true
+    create: CREATE_CRD
     keep: true
   ingress:
     annotations: {}
@@ -31,7 +31,7 @@ spec:
     pullPolicy: IfNotPresent
     repository: >-
       quay.io/bitnami/sealed-secrets-controller@sha256:8e9a37bb2e1a6f3a8bee949e3af0e9dab0d7dca618f1a63048dc541b5d554985
-  secretName: sealed-secrets-key
+  secretName: SEALED_SECRET_KEY
   tolerations: []
   controller:
     create: true

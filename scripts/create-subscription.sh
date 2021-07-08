@@ -8,7 +8,7 @@ NAMESPACE="$1"
 echo "Creating project"
 oc new-project "${NAMESPACE}"
 
-if [[ $(oc get operatorgroup -n "${NAMESPACE}" -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' | wc -l) -eq 0 ]]; then
+if [[ $(oc get operatorgroup -n "${NAMESPACE}" -o custom-columns=NAME:.metadata.name | grep -vc "NAME") -eq 0 ]]; then
   echo "Creating operator group"
   operatorgroup="
 apiVersion: operators.coreos.com/v1
