@@ -1,11 +1,71 @@
 id: github.com/cloud-native-toolkit/terraform-tools-sealed-secrets
-name: ""
+name: sealed-secrets
 type: terraform
-description: ""
+description: Module to install the sealed secrets controller
 tags:
   - tools
   - devops
+  - sealed secrets
+  - gitops
 versions:
+  - platforms:
+      - ocp4
+    dependencies:
+      - id: cluster
+        refs:
+          - source: github.com/ibm-garage-cloud/terraform-ibm-container-platform
+            version: ">= 1.7.0"
+          - source: github.com/ibm-garage-cloud/terraform-ibm-ocp-vpc
+            version: ">= 1.0.0"
+          - source: github.com/ibm-garage-cloud/terraform-k8s-ocp-cluster
+            version: ">= 2.0.0"
+          - source: github.com/ibm-garage-cloud/terraform-ocp-login
+            version: ">= 1.0.0"
+      - id: namespace
+        refs:
+          - source: github.com/ibm-garage-cloud/terraform-k8s-namespace
+            version: ">= 2.1.0"
+    variables:
+      - name: cluster_config_file
+        moduleRef:
+          id: cluster
+          output: config_file_path
+        type: string
+        description: Cluster config file for Kubernetes cluster.
+      - name: namespace
+        moduleRef:
+          id: namespace
+          output: name
+        type: string
+        description: The namespace where the sealed secret will be deployed
+        default: sealed-secrets
+        optional: true
+      - name: public_key
+        type: string
+        description: The public key that will be used to encrypt sealed secrets. If not provided, a new one will be generated
+        default: ""
+        optional: true
+      - name: private_key
+        type: string
+        description: The private key that will be used to decrypt sealed secrets. If not provided, a new one will be generated
+        default: ""
+        optional: true
+      - name: public_key_file
+        type: string
+        description: The file containing the public key that will be used to encrypt the sealed secrets. If not provided a new public key will be generated
+        default: ""
+        optional: true
+      - name: private_key_file
+        type: string
+        description: The file containin the private key that will be used to encrypt the sealed secrets. If not provided a new private key will be generated
+        default: ""
+        optional: true
+    version: v1.0.1
+    outputs:
+      - name: public_key
+        description: output "public_key" {   value = local.private_key }
+      - name: private_key
+        description: output "private_key" {   value = local.private_key   sensitive = true }
   - platforms:
       - kubernetes
       - ocp3
@@ -53,28 +113,3 @@ versions:
     #          version: ">= 1.6.0"
     variables: []
     version: v0.0.0
-#    - name: cluster_type
-#      moduleRef:
-#        id: cluster
-#        output: type_code
-#    - name: cluster_ingress_hostname
-#      moduleRef:
-#        id: cluster
-#        output: ingress_hostname
-#    - name: cluster_config_file
-#      moduleRef:
-#        id: cluster
-#        output: config_file_path
-#    - name: tls_secret_name
-#      moduleRef:
-#        id: cluster
-#        output: tls_secret_name
-#    - name: releases_namespace
-#      moduleRef:
-#        id: namespace
-#        output: name
-#        discriminator: tools
-#    - name: icon_url
-#      moduleRef:
-#        id: dashboard
-#        output: base_icon_url

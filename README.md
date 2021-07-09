@@ -1,23 +1,10 @@
-# Starter kit for a Terraform module
+# Sealed Secrets module
 
-This is a Starter kit to help with the creation of Terraform modules. The basic structure of a Terraform module is fairly
-simple and consists of the following basic values:
+Module to provision the Sealed Secrets controller in the cluster. The Sealed Secrets controller provides a secure, self-contained mechanism to manage credentials in a GitOps repo. The credentials are encrypted and stored in the GitOps repository in a SealedSecret custom resource. When the SealedSecret resources are created in the cluster, the Sealed Secret controller decrypts the value and generates a kubernetes secret from the value.
 
-- README.md - provides a description of the module
-- main.tf - defiens the logic for the module
-- variables.tf (optional) - defines the input variables for the module
-- outputs.tf (optional) - defines the values that are output from the module
+The alternative to Sealed Secrets for managing credentials in GitOps is to use some third-party software component to store and manage the secrets and them pull values from that system for use in the cluster. Sealed Secrets have the advantage of being self-contained and managed directly in git. In large enterprise deployments an external secret manager is preferable but Sealed Secrets provide a safe and simple entry point for handling credentials in GitOps.
 
-Beyond those files, any other content can be added and organized however you see fit. For example, you can add a `scripts/` directory
-that contains shell scripts executed by a `local-exec` `null_resource` in the terraform module. The contents will depend on what your
-module does and how it does it.
-
-## Instructions for creating a new module
-
-1. Update the title and description in the README to match the module you are creating
-2. Fill out the remaining sections in the README template as appropriate
-3. Implement your logic in the in the main.tf, variables.tf, and outputs.tf
-4. Use releases/tags to manage release versions of your module
+More information on sealed secrets can be found here - https://github.com/bitnami-labs/sealed-secrets
 
 ## Software dependencies
 
@@ -25,13 +12,12 @@ The module depends on the following software components:
 
 ### Command-line tools
 
-- terraform - v12
+- terraform - v13
 - kubectl
 
 ### Terraform providers
 
 - IBM Cloud provider >= 1.5.3
-- Helm provider >= 1.1.1 (provided by Terraform)
 
 ## Module dependencies
 
@@ -39,21 +25,15 @@ This module makes use of the output from other modules:
 
 - Cluster - github.com/ibm-garage-cloud/terraform-ibm-container-platform.git
 - Namespace - github.com/ibm-garage-clout/terraform-cluster-namespace.git
-- etc
 
 ## Example usage
 
 ```hcl-terraform
-module "dev_tools_argocd" {
-  source = "github.com/ibm-garage-cloud/terraform-tools-argocd.git?ref=v1.0.0"
+module "sealed_secrets" {
+  source = "github.com/cloud-native-toolkit/terraform-tools-sealed-secrets.git"
 
   cluster_config_file = module.dev_cluster.config_file_path
-  cluster_type        = module.dev_cluster.type
-  app_namespace       = module.dev_cluster_namespaces.tools_namespace_name
-  ingress_subdomain   = module.dev_cluster.ingress_hostname
-  olm_namespace       = module.dev_software_olm.olm_namespace
-  operator_namespace  = module.dev_software_olm.target_namespace
-  name                = "argocd"
+  namespace           = module.namespace.name
 }
 ```
 
