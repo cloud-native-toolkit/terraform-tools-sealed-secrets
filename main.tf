@@ -31,7 +31,24 @@ resource tls_self_signed_cert cert {
   ]
 }
 
+resource null_resource create_namespace {
+  triggers = {
+    kubeconfig = var.cluster_config_file
+    namespace = var.namespace
+  }
+
+  provisioner "local-exec" {
+    command = "if ! kubectl get namespace '${self.triggers.namespace}' 1> /dev/null 2> /dev/null; then oc new-project '${self.triggers.namespace}'; fi"
+
+    environment = {
+      KUBECONFIG = self.triggers.kubeconfig
+    }
+  }
+
+}
+
 resource null_resource create_tls_secret {
+  depends_on = [null_resource.create_namespace]
 
   triggers = {
     kubeconfig = var.cluster_config_file
@@ -62,7 +79,7 @@ resource null_resource create_tls_secret {
 
 # Create instance
 resource null_resource create_instance {
-  depends_on = [null_resource.create_tls_secret]
+  depends_on = [null_resource.create_namespace, null_resource.create_tls_secret]
 
   triggers = {
     namespace = var.namespace
