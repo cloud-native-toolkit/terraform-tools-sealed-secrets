@@ -31,45 +31,7 @@ resource tls_self_signed_cert cert {
   ]
 }
 
-resource null_resource create_subscription {
-  triggers = {
-    kubeconfig = var.cluster_config_file
-    namespace = var.namespace
-  }
-
-  provisioner "local-exec" {
-    command = "${path.module}/scripts/create-subscription.sh ${self.triggers.namespace}"
-
-    environment = {
-      KUBECONFIG = self.triggers.kubeconfig
-    }
-  }
-
-  provisioner "local-exec" {
-    when = destroy
-
-    command = "${path.module}/scripts/delete-subscription.sh ${self.triggers.namespace}"
-
-    environment = {
-      KUBECONFIG = self.triggers.kubeconfig
-    }
-  }
-}
-
-resource null_resource wait_for_crd {
-  depends_on = [null_resource.create_subscription]
-
-  provisioner "local-exec" {
-    command = "${path.module}/scripts/wait-for-crds.sh"
-
-    environment = {
-      KUBECONFIG = var.cluster_config_file
-    }
-  }
-}
-
 resource null_resource create_tls_secret {
-  depends_on = [null_resource.wait_for_crd]
 
   triggers = {
     kubeconfig = var.cluster_config_file
@@ -100,7 +62,7 @@ resource null_resource create_tls_secret {
 
 # Create instance
 resource null_resource create_instance {
-  depends_on = [null_resource.wait_for_crd, null_resource.create_tls_secret]
+  depends_on = [null_resource.create_tls_secret]
 
   triggers = {
     namespace = var.namespace
