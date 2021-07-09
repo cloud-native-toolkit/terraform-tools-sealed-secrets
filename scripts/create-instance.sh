@@ -23,6 +23,11 @@ if [[ -z "${HELM}" ]]; then
   HELM="$(cd ./bin; pwd -P)/helm"
 fi
 
+if ! kubectl get namespace "${NAMESPACE}" 1> /dev/null 2> /dev/null; then
+  echo "Creating namespace"
+  oc new-project "${NAMESPACE}"
+fi
+
 ${HELM} template sealed-secrets sealed-secrets \
   --repo https://bitnami-labs.github.io/sealed-secrets \
   --namespace "${NAMESPACE}" \
