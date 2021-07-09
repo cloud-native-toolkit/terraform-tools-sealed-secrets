@@ -5,7 +5,7 @@ locals {
   private_key = local.keys_provided ? local.provided_private_key : tls_private_key.generated_key.private_key_pem
   public_key  = local.keys_provided ? local.provided_public_key : tls_private_key.generated_key.public_key_pem
   secret_name = "sealed-secrets-key"
-  deployment_name = "sealed-secrets-controller"
+  deployment_name = "sealed-secrets"
 }
 
 resource tls_private_key generated_key {
