@@ -16,6 +16,7 @@ fi
 
 CREATE_RBAC="true"
 if kubectl get clusterrole secrets-unsealer 1> /dev/null 2> /dev/null; then
+  echo "Cluster Roles already installed. Setting CREATE_RBAC flag to false"
   CREATE_RBAC="false"
 fi
 
