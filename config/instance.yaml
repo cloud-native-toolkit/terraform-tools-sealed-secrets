@@ -1,0 +1,39 @@
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecretController
+metadata:
+  name: sealed-secrets-controller
+spec:
+  networkPolicy: false
+  nodeSelector: {}
+  podLabels: {}
+  resources: {}
+  affinity: {}
+  securityContext:
+    fsGroup: ''
+    runAsUser: ''
+  rbac:
+    create: CREATE_RBAC
+    pspEnabled: false
+  crd:
+    create: CREATE_CRD
+    keep: true
+  ingress:
+    annotations: {}
+    enabled: false
+    hosts:
+      - chart-example.local
+    path: /v1/cert.pem
+    tls: []
+  serviceAccount:
+    create: true
+    name: ''
+  image:
+    pullPolicy: IfNotPresent
+    repository: >-
+      quay.io/bitnami/sealed-secrets-controller@sha256:8e9a37bb2e1a6f3a8bee949e3af0e9dab0d7dca618f1a63048dc541b5d554985
+  secretName: SEALED_SECRET_KEY
+  tolerations: []
+  controller:
+    create: true
+  priorityClassName: ''
+  podAnnotations: {}
