@@ -32,11 +32,26 @@ resource tls_self_signed_cert cert {
 }
 
 resource null_resource create_subscription {
+  triggers = {
+    kubeconfig = var.cluster_config_file
+    namespace = var.namespace
+  }
+
   provisioner "local-exec" {
-    command = "${path.module}/scripts/create-subscription.sh ${var.namespace}"
+    command = "${path.module}/scripts/create-subscription.sh ${self.triggers.namespace}"
 
     environment = {
-      KUBECONFIG = var.cluster_config_file
+      KUBECONFIG = self.triggers.kubeconfig
+    }
+  }
+
+  provisioner "local-exec" {
+    when = destroy
+
+    command = "${path.module}/scripts/delete-subscription.sh ${self.triggers.namespace}"
+
+    environment = {
+      KUBECONFIG = self.triggers.kubeconfig
     }
   }
 }
@@ -56,13 +71,29 @@ resource null_resource wait_for_crd {
 resource null_resource create_tls_secret {
   depends_on = [null_resource.wait_for_crd]
 
+  triggers = {
+    kubeconfig = var.cluster_config_file
+    namespace = var.namespace
+    secret_name = local.secret_name
+  }
+
   provisioner "local-exec" {
-    command = "${path.module}/scripts/create-tls-secret.sh ${var.namespace} ${local.secret_name}"
+    command = "${path.module}/scripts/create-tls-secret.sh ${self.triggers.namespace} ${self.triggers.secret_name}"
 
     environment = {
-      KUBECONFIG  = var.cluster_config_file
+      KUBECONFIG  = self.triggers.kubeconfig
       PRIVATE_KEY = local.private_key
       PUBLIC_KEY  = tls_self_signed_cert.cert.cert_pem
+    }
+  }
+
+  provisioner "local-exec" {
+    when = destroy
+
+    command = "${path.module}/scripts/delete-tls-secret.sh ${self.triggers.namespace} ${self.triggers.secret_name}"
+
+    environment = {
+      KUBECONFIG = self.triggers.kubeconfig
     }
   }
 }
@@ -71,11 +102,27 @@ resource null_resource create_tls_secret {
 resource null_resource create_instance {
   depends_on = [null_resource.wait_for_crd, null_resource.create_tls_secret]
 
+  triggers = {
+    namespace = var.namespace
+    secret_name = local.secret_name
+    kubeconfig = var.cluster_config_file
+  }
+
   provisioner "local-exec" {
-    command = "${path.module}/scripts/create-instance.sh ${var.namespace} ${local.secret_name}"
+    command = "${path.module}/scripts/create-instance.sh ${self.triggers.namespace} ${self.triggers.secret_name}"
 
     environment = {
-      KUBECONFIG = var.cluster_config_file
+      KUBECONFIG = self.triggers.kubeconfig
+    }
+  }
+
+  provisioner "local-exec" {
+    when = destroy
+
+    command = "${path.module}/scripts/delete-instance.sh ${self.triggers.namespace} ${self.triggers.secret_name}"
+
+    environment = {
+      KUBECONFIG = self.triggers.kubeconfig
     }
   }
 }
