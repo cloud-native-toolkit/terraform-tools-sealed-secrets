@@ -14,7 +14,10 @@ CLUSTER_TYPE=$(cat ./terraform.tfvars | grep "cluster_type" | sed -E "s/.*=//g" 
 echo "listing directory contents"
 ls -A
 
-TOOLS_NAMESPACE=$(cat .namespace)
+CLUSTER_TYPE="$1"
+NAMESPACE="$2"
+NAME="$3"
+
 
 echo "Verifying resources in ${NAMESPACE} namespace for module ${NAME}"
 
