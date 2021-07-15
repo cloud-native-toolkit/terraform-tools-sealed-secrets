@@ -38,7 +38,7 @@ resource null_resource create_namespace {
   }
 
   provisioner "local-exec" {
-    command = "if ! kubectl get namespace '${self.triggers.namespace}' 1> /dev/null 2> /dev/null; then oc new-project '${self.triggers.namespace}'; fi"
+    command = "if ! oc get project '${self.triggers.namespace}' 1> /dev/null 2> /dev/null; then oc new-project '${self.triggers.namespace}' || echo 'Already exists'; fi"
 
     environment = {
       KUBECONFIG = self.triggers.kubeconfig
