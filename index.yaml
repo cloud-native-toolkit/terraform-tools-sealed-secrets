@@ -60,6 +60,66 @@ versions:
         description: The file containin the private key that will be used to encrypt the sealed secrets. If not provided a new private key will be generated
         default: ""
         optional: true
+    version: v1.0.6
+    outputs:
+      - name: public_key
+        description: output "public_key" {   value = local.public_key }
+      - name: private_key
+        description: output "private_key" {   value = local.private_key   sensitive = true }
+      - name: cert
+        description: output "cert" {   value = tls_self_signed_cert.cert.cert_pem }
+  - platforms:
+      - ocp4
+    dependencies:
+      - id: cluster
+        refs:
+          - source: github.com/ibm-garage-cloud/terraform-ibm-container-platform
+            version: ">= 1.7.0"
+          - source: github.com/ibm-garage-cloud/terraform-ibm-ocp-vpc
+            version: ">= 1.0.0"
+          - source: github.com/ibm-garage-cloud/terraform-k8s-ocp-cluster
+            version: ">= 2.0.0"
+          - source: github.com/ibm-garage-cloud/terraform-ocp-login
+            version: ">= 1.0.0"
+      - id: namespace
+        refs:
+          - source: github.com/ibm-garage-cloud/terraform-k8s-namespace
+            version: ">= 2.1.0"
+    variables:
+      - name: cluster_config_file
+        moduleRef:
+          id: cluster
+          output: config_file_path
+        type: string
+        description: Cluster config file for Kubernetes cluster.
+      - name: namespace
+        moduleRef:
+          id: namespace
+          output: name
+        type: string
+        description: The namespace where the sealed secret will be deployed
+        default: sealed-secrets
+        optional: true
+      - name: public_key
+        type: string
+        description: The public key that will be used to encrypt sealed secrets. If not provided, a new one will be generated
+        default: ""
+        optional: true
+      - name: private_key
+        type: string
+        description: The private key that will be used to decrypt sealed secrets. If not provided, a new one will be generated
+        default: ""
+        optional: true
+      - name: public_key_file
+        type: string
+        description: The file containing the public key that will be used to encrypt the sealed secrets. If not provided a new public key will be generated
+        default: ""
+        optional: true
+      - name: private_key_file
+        type: string
+        description: The file containin the private key that will be used to encrypt the sealed secrets. If not provided a new private key will be generated
+        default: ""
+        optional: true
     version: v1.0.5
     outputs:
       - name: public_key
