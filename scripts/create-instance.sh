@@ -7,20 +7,23 @@ CONFIG_DIR=$(cd "${SCRIPT_DIR}/../config"; pwd -P)
 NAMESPACE="$1"
 SECRET_NAME="$2"
 
-BIN_DIR="./dir"
+mkdir -p ./bin
+BIN_DIR=$(cd ./bin; pwd -P)
 
-mkdir -p "${BIN_DIR}"
-
-HELM=$(command -v helm || command -v ./bin/helm)
+HELM=$(command -v helm || command -v "${BIN_DIR}/helm")
 
 if [[ -z "${HELM}" ]]; then
-  curl -sLo helm.tar.gz https://get.helm.sh/helm-v3.6.1-linux-amd64.tar.gz
-  tar xzf helm.tar.gz
-  mkdir -p ./bin && mv ./linux-amd64/helm ./bin/helm
-  rm -rf linux-amd64
-  rm helm.tar.gz
+  curl -sLo helm3.tar.gz https://get.helm.sh/helm-v3.6.1-linux-amd64.tar.gz
 
-  HELM="$(cd ./bin; pwd -P)/helm"
+  HELM=$(command -v helm || command -v "${BIN_DIR}/helm")
+  if [[ -z "${HELM}" ]]; then
+    tar xzf helm3.tar.gz
+    cp ./linux-amd64/helm "${BIN_DIR}/helm"
+    rm -rf linux-amd64
+    rm helm3.tar.gz
+
+    HELM="${BIN_DIR}/helm"
+  fi
 fi
 
 ${HELM} template sealed-secrets sealed-secrets \
