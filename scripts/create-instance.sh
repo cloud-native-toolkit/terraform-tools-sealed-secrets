@@ -38,4 +38,8 @@ ${HELM} template sealed-secrets sealed-secrets \
   --values "${CONFIG_DIR}/instance-values.yaml" | \
   kubectl apply -n "${NAMESPACE}" -f -
 
+echo "Waiting for deployment/sealed-secrets in ${NAMESPACE}"
 kubectl rollout status deployment sealed-secrets -n "${NAMESPACE}"
+
+echo "Getting secrets in ${NAMESPACE}"
+kubectl get secrets -n "${NAMESPACE}" --show-labels
