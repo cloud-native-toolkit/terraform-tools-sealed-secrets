@@ -26,12 +26,7 @@ if [[ -z "${HELM}" ]]; then
   fi
 fi
 
-echo "Installing sealed secrets with yaml"
-${HELM} template sealed-secrets sealed-secrets \
-  --repo https://bitnami-labs.github.io/sealed-secrets \
-  --namespace "${NAMESPACE}" \
-  --values "${CONFIG_DIR}/instance-values.yaml"
-
+echo "Installing sealed secrets controller"
 ${HELM} template sealed-secrets sealed-secrets \
   --repo https://bitnami-labs.github.io/sealed-secrets \
   --namespace "${NAMESPACE}" \
@@ -40,9 +35,3 @@ ${HELM} template sealed-secrets sealed-secrets \
 
 echo "Waiting for deployment/sealed-secrets in ${NAMESPACE}"
 kubectl rollout status deployment sealed-secrets -n "${NAMESPACE}"
-
-echo "Getting secrets in ${NAMESPACE}"
-kubectl get secrets -n "${NAMESPACE}" --show-labels
-
-echo "Getting log from controller in ${NAMESPACE}"
-kubectl -n "${NAMESPACE}" logs -l name=sealed-secrets-controller

@@ -128,15 +128,3 @@ resource null_resource create_instance {
     }
   }
 }
-
-resource null_resource wait_for_deployment {
-  depends_on = [null_resource.create_instance]
-
-  provisioner "local-exec" {
-    command = "${path.module}/scripts/wait-for-deployment.sh ${var.namespace} ${local.deployment_name}"
-
-    environment = {
-      KUBECONFIG = var.cluster_config_file
-    }
-  }
-}
