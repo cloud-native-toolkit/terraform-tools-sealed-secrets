@@ -26,8 +26,12 @@ if [[ -z "${HELM}" ]]; then
   fi
 fi
 
+echo "Installing sealed secrets controller"
 ${HELM} template sealed-secrets sealed-secrets \
   --repo https://bitnami-labs.github.io/sealed-secrets \
   --namespace "${NAMESPACE}" \
   --values "${CONFIG_DIR}/instance-values.yaml" | \
   kubectl apply -n "${NAMESPACE}" -f -
+
+echo "Waiting for deployment/sealed-secrets in ${NAMESPACE}"
+kubectl rollout status deployment sealed-secrets -n "${NAMESPACE}"

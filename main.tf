@@ -4,7 +4,7 @@ locals {
   keys_provided = local.provided_private_key != "" && local.provided_public_key != ""
   private_key = local.keys_provided ? local.provided_private_key : tls_private_key.generated_key.private_key_pem
   public_key  = local.keys_provided ? local.provided_public_key : tls_private_key.generated_key.public_key_pem
-  secret_name = "sealed-secrets-key"
+  secret_name = "custom-sealed-secrets-key"
   deployment_name = "sealed-secrets"
 }
 
@@ -18,16 +18,34 @@ resource tls_self_signed_cert cert {
   private_key_pem = local.private_key
 
   subject {
-    common_name  = "localhost"
-    organization = "Cloud-Native Toolkit"
+    common_name  = "sealed-secret"
+    organization = "sealed-secret"
   }
 
   validity_period_hours = 365 * 24
 
   allowed_uses = [
-    "key_encipherment",
     "digital_signature",
+    "content_commitment",
+    "key_encipherment",
+    "data_encipherment",
+    "key_agreement",
+    "cert_signing",
+    "crl_signing",
+    "encipher_only",
+    "decipher_only",
+    "any_extended",
     "server_auth",
+    "client_auth",
+    "code_signing",
+    "email_protection",
+    "ipsec_end_system",
+    "ipsec_tunnel",
+    "ipsec_user",
+    "timestamping",
+    "ocsp_signing",
+    "microsoft_server_gated_crypto",
+    "netscape_server_gated_crypto"
   ]
 }
 
@@ -38,13 +56,18 @@ resource null_resource create_namespace {
   }
 
   provisioner "local-exec" {
-    command = "if ! oc get project '${self.triggers.namespace}' 1> /dev/null 2> /dev/null; then oc new-project '${self.triggers.namespace}' || echo 'Already exists'; fi"
+    command = "if ! oc get namespace '${self.triggers.namespace}' 1> /dev/null 2> /dev/null; then oc new-project '${self.triggers.namespace}' && oc label namespace '${self.triggers.namespace}' created-by=sealed-secret-module || echo 'Already exists'; fi"
 
     environment = {
       KUBECONFIG = self.triggers.kubeconfig
     }
   }
 
+  provisioner "local-exec" {
+    when = destroy
+
+    command = "if [ $(kubectl get namespace -l created-by=sealed-secret-module | grep -qc ${self.triggers.namespace}) -gt 0 ]; then oc delete project ${self.triggers.namespace}; else echo 'Namespace created by someone else: ${self.triggers.namespace}'; fi"
+  }
 }
 
 resource null_resource create_tls_secret {
@@ -102,18 +125,6 @@ resource null_resource create_instance {
 
     environment = {
       KUBECONFIG = self.triggers.kubeconfig
-    }
-  }
-}
-
-resource null_resource wait_for_deployment {
-  depends_on = [null_resource.create_instance]
-
-  provisioner "local-exec" {
-    command = "${path.module}/scripts/wait-for-deployment.sh ${var.namespace} ${local.deployment_name}"
-
-    environment = {
-      KUBECONFIG = var.cluster_config_file
     }
   }
 }

@@ -20,4 +20,5 @@ echo "${PRIVATE_KEY}" > "${PRIVATE_KEY_FILE}"
 echo "${PUBLIC_KEY}" > "${PUBLIC_KEY_FILE}"
 
 kubectl create secret tls "${SECRET_NAME}" --cert="${PUBLIC_KEY_FILE}" --key="${PRIVATE_KEY_FILE}" --dry-run=client -o yaml | \
+  kubectl label -f - sealedsecrets.bitnami.com/sealed-secrets-key=active --local=true --dry-run=client -o yaml | \
   kubectl apply -n "${NAMESPACE}" -f -
