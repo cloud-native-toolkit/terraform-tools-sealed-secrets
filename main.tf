@@ -38,13 +38,18 @@ resource null_resource create_namespace {
   }
 
   provisioner "local-exec" {
-    command = "if ! oc get project '${self.triggers.namespace}' 1> /dev/null 2> /dev/null; then oc new-project '${self.triggers.namespace}' || echo 'Already exists'; fi"
+    command = "if ! oc get namespace '${self.triggers.namespace}' 1> /dev/null 2> /dev/null; then oc new-project '${self.triggers.namespace}' && oc label namespace '${self.triggers.namespace}' created-by=sealed-secret-module || echo 'Already exists'; fi"
 
     environment = {
       KUBECONFIG = self.triggers.kubeconfig
     }
   }
 
+  provisioner "local-exec" {
+    when = destroy
+
+    command = "if [ $(kubectl get namespace -l created-by=sealed-secret-module | grep -qc ${self.triggers.namespace}) -gt 0 ]; then oc delete project ${self.triggers.namespace}; else echo 'Namespace created by someone else: ${self.triggers.namespace}'; fi"
+  }
 }
 
 resource null_resource create_tls_secret {

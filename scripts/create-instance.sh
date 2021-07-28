@@ -26,6 +26,12 @@ if [[ -z "${HELM}" ]]; then
   fi
 fi
 
+echo "Installing sealed secrets with yaml"
+${HELM} template sealed-secrets sealed-secrets \
+  --repo https://bitnami-labs.github.io/sealed-secrets \
+  --namespace "${NAMESPACE}" \
+  --values "${CONFIG_DIR}/instance-values.yaml"
+
 ${HELM} template sealed-secrets sealed-secrets \
   --repo https://bitnami-labs.github.io/sealed-secrets \
   --namespace "${NAMESPACE}" \
