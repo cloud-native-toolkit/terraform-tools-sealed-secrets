@@ -15,7 +15,7 @@ resource local_file cert_file {
 
 resource null_resource create_sealed_secret {
   provisioner "local-exec" {
-    command = "${path.module}/scripts/create-sealed-secret.sh '${local.secret_name}' '${local.secret_value}' '${local_file.cert_file.filename}' '${local.secret_file}'"
+    command = "${path.module}/scripts/create-sealed-secret.sh '${local.secret_name}' '${var.namespace}' '${local.secret_value}' '${local_file.cert_file.filename}' '${local.secret_file}'"
   }
 }
 

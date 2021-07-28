@@ -4,9 +4,10 @@ SCRIPT_DIR=$(cd $(dirname "$0"); pwd -P)
 MODULE_DIR=$(cd "${SCRIPT_DIR}/.."; pwd -P)
 
 SECRET_NAME="$1"
-SECRET_VALUE="$2"
-SEALED_SECRET_CERT_FILE="$3"
-SEALED_SECRET_FILE="$4"
+NAMESPACE="$2"
+SECRET_VALUE="$3"
+SEALED_SECRET_CERT_FILE="$4"
+SEALED_SECRET_FILE="$5"
 
 if [[ -z "${SECRET_NAME}" ]] || [[ -z "${SECRET_VALUE}" ]] || [[ -z "${SEALED_SECRET_FILE}" ]] || [[ -z "${SEALED_SECRET_CERT_FILE}" ]]; then
   echo "Usage: create-sealed-secrets.sh SECRET_NAME SECRET_VALUE SEALED_SECRET_CERT_FILE SEALED_SECRET_FILE"
@@ -26,6 +27,6 @@ if [[ -z "${KUBESEAL}" ]]; then
   KUBESEAL="${BIN_DIR}/kubeseal"
 fi
 
-echo -n "${SECRET_VALUE}" | kubectl create secret generic "${SECRET_NAME}" --dry-run=client --from-file=test=/dev/stdin -o json | \
+echo -n "${SECRET_VALUE}" | kubectl create secret generic -n "${NAMESPACE}" "${SECRET_NAME}" --dry-run=client --from-file=test=/dev/stdin -o json | \
   ${KUBESEAL} --cert "${SEALED_SECRET_CERT_FILE}" > "${SEALED_SECRET_FILE}"
 
