@@ -37,3 +37,5 @@ ${HELM} template sealed-secrets sealed-secrets \
   --namespace "${NAMESPACE}" \
   --values "${CONFIG_DIR}/instance-values.yaml" | \
   kubectl apply -n "${NAMESPACE}" -f -
+
+kubectl rollout status deployment sealed-secrets -n "${NAMESPACE}"
