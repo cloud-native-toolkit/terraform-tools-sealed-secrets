@@ -35,7 +35,7 @@ resource null_resource verify_secret {
   depends_on = [null_resource.apply_sealed_secret]
 
   provisioner "local-exec" {
-    command = "kubectl -n ${var.namespace} get secret ${local.secret_name}"
+    command = "${path.module}/scripts/verify-sealed-secret.sh ${local.secret_name} ${var.namespace}"
 
     environment = {
       KUBECONFIG = var.kubeconfig
