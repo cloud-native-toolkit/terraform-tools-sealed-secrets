@@ -4,7 +4,7 @@ locals {
   keys_provided = local.provided_private_key != "" && local.provided_public_key != ""
   private_key = local.keys_provided ? local.provided_private_key : tls_private_key.generated_key.private_key_pem
   public_key  = local.keys_provided ? local.provided_public_key : tls_private_key.generated_key.public_key_pem
-  secret_name = "sealed-secrets-key"
+  secret_name = "custom-sealed-secrets-key"
   deployment_name = "sealed-secrets"
 }
 
@@ -18,8 +18,8 @@ resource tls_self_signed_cert cert {
   private_key_pem = local.private_key
 
   subject {
-    common_name  = "localhost"
-    organization = "Cloud-Native Toolkit"
+    common_name  = "sealed-secret"
+    organization = "sealed-secret"
   }
 
   validity_period_hours = 365 * 24

@@ -43,3 +43,6 @@ kubectl rollout status deployment sealed-secrets -n "${NAMESPACE}"
 
 echo "Getting secrets in ${NAMESPACE}"
 kubectl get secrets -n "${NAMESPACE}" --show-labels
+
+echo "Getting log from controller in ${NAMESPACE}"
+kubectl -n "${NAMESPACE}" logs -l name=sealed-secrets-controller
