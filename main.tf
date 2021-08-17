@@ -1,6 +1,14 @@
 locals {
-  secret_name = "custom-sealed-secrets"
+  secret_name = "custom-sealed-secret-${random_string.suffix.result}"
   deployment_name = "sealed-secrets"
+}
+
+resource random_string suffix {
+  length  = 6
+  special = false
+  lower   = true
+  upper   = false
+  number  = true
 }
 
 resource null_resource create_namespace {
@@ -60,12 +68,11 @@ resource null_resource create_instance {
 
   triggers = {
     namespace = var.namespace
-    secret_name = local.secret_name
     kubeconfig = var.cluster_config_file
   }
 
   provisioner "local-exec" {
-    command = "${path.module}/scripts/create-instance.sh ${self.triggers.namespace} ${self.triggers.secret_name}"
+    command = "${path.module}/scripts/create-instance.sh ${self.triggers.namespace}"
 
     environment = {
       KUBECONFIG = self.triggers.kubeconfig
@@ -75,7 +82,7 @@ resource null_resource create_instance {
   provisioner "local-exec" {
     when = destroy
 
-    command = "${path.module}/scripts/delete-instance.sh ${self.triggers.namespace} ${self.triggers.secret_name}"
+    command = "${path.module}/scripts/delete-instance.sh ${self.triggers.namespace}"
 
     environment = {
       KUBECONFIG = self.triggers.kubeconfig

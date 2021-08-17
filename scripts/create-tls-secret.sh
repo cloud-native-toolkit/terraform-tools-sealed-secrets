@@ -1,10 +1,7 @@
 #!/usr/bin/env bash
 
 NAMESPACE="$1"
-NAME="$2"
-SUFFIX=$(LC_ALL=C tr -dc a-z0-9 </dev/urandom | head -c 6 ; echo '')
-
-SECRET_NAME="${NAME}-${SUFFIX}"
+SECRET_NAME="$2"
 
 if [[ -z "${PRIVATE_KEY}" ]] || [[ -z "${CERT}" ]]; then
   echo "PRIVATE_KEY and CERT values must be provided as environment variables"
