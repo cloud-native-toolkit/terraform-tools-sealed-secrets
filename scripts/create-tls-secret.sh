@@ -2,7 +2,7 @@
 
 NAMESPACE="$1"
 NAME="$2"
-SUFFIX=$(LC_ALL=C tr -dc A-Za-z0-9 </dev/urandom | head -c 6 ; echo '')
+SUFFIX=$(LC_ALL=C tr -dc a-z0-9 </dev/urandom | head -c 6 ; echo '')
 
 SECRET_NAME="${NAME}-${SUFFIX}"
 
