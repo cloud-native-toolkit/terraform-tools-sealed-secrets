@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 
 NAMESPACE="$1"
-SECRET_NAME="$2"
+NAME="$2"
+SUFFIX=$(LC_ALL=C tr -dc A-Za-z0-9 </dev/urandom | head -c 6 ; echo '')
 
-if [[ -z "${PRIVATE_KEY}" ]] || [[ -z "${PUBLIC_KEY}" ]]; then
-  echo "PRIVATE_KEY and PUBLIC_KEY values must be provided as environment variables"
+SECRET_NAME="${NAME}-${SUFFIX}"
+
+if [[ -z "${PRIVATE_KEY}" ]] || [[ -z "${CERT}" ]]; then
+  echo "PRIVATE_KEY and CERT values must be provided as environment variables"
   exit 1
 fi
 
@@ -14,11 +17,11 @@ fi
 mkdir -p "${TMP_DIR}"
 
 PRIVATE_KEY_FILE="${TMP_DIR}/private.key"
-PUBLIC_KEY_FILE="${TMP_DIR}/public.key"
+CERT_FILE="${TMP_DIR}/cert.key"
 
 echo "${PRIVATE_KEY}" > "${PRIVATE_KEY_FILE}"
-echo "${PUBLIC_KEY}" > "${PUBLIC_KEY_FILE}"
+echo "${CERT}" > "${CERT_FILE}"
 
-kubectl create secret tls "${SECRET_NAME}" --cert="${PUBLIC_KEY_FILE}" --key="${PRIVATE_KEY_FILE}" --dry-run=client -o yaml | \
+kubectl create secret tls "${SECRET_NAME}" --cert="${CERT_FILE}" --key="${PRIVATE_KEY_FILE}" --dry-run=client -o yaml | \
   kubectl label -f - sealedsecrets.bitnami.com/sealed-secrets-key=active --local=true --dry-run=client -o yaml | \
-  kubectl apply -n "${NAMESPACE}" -f -
+  kubectl create -n "${NAMESPACE}" -f -
