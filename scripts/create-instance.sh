@@ -5,7 +5,6 @@ SCRIPT_DIR=$(cd $(dirname "$0"); pwd -P)
 CONFIG_DIR=$(cd "${SCRIPT_DIR}/../config"; pwd -P)
 
 NAMESPACE="$1"
-SECRET_NAME="$2"
 
 mkdir -p ./bin
 BIN_DIR=$(cd ./bin; pwd -P)

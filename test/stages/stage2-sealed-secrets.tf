@@ -1,6 +1,8 @@
 module "sealed_secrets" {
   source = "./module"
 
+  cert                = module.cert.cert
+  private_key         = module.cert.private_key
   cluster_config_file = module.dev_cluster.config_file_path
   namespace           = module.dev_capture_tools_state.namespace
 }
