@@ -60,6 +60,64 @@ versions:
         description: The namespace where the sealed secret will be deployed
         default: sealed-secrets
         optional: true
+    version: v1.1.1
+    outputs:
+      - name: private_key
+        description: output "private_key" {   value = var.private_key   sensitive = true   depends_on = [null_resource.create_instance] }
+      - name: cert
+        description: output "cert" {   value = var.cert   depends_on = [null_resource.create_instance] }
+  - platforms:
+      - ocp4
+    dependencies:
+      - id: cluster
+        refs:
+          - source: github.com/ibm-garage-cloud/terraform-ibm-container-platform
+            version: ">= 1.7.0"
+          - source: github.com/ibm-garage-cloud/terraform-ibm-ocp-vpc
+            version: ">= 1.0.0"
+          - source: github.com/ibm-garage-cloud/terraform-k8s-ocp-cluster
+            version: ">= 2.0.0"
+          - source: github.com/ibm-garage-cloud/terraform-ocp-login
+            version: ">= 1.0.0"
+      - id: namespace
+        refs:
+          - source: github.com/ibm-garage-cloud/terraform-k8s-namespace
+            version: ">= 2.1.0"
+      - id: cert
+        refs:
+          - source: github.com/cloud-native-toolkit/terraform-util-sealed-secret-cert
+            version: ">= 0.0.0"
+    variables:
+      - name: cert
+        moduleRef:
+          id: cert
+          output: cert
+        type: string
+        description: The public key that will be used to encrypt sealed secrets. If not provided, a new one will be generated
+        default: ""
+        optional: true
+      - name: private_key
+        moduleRef:
+          id: cert
+          output: private_key
+        type: string
+        description: The private key that will be used to decrypt sealed secrets. If not provided, a new one will be generated
+        default: ""
+        optional: true
+      - name: cluster_config_file
+        moduleRef:
+          id: cluster
+          output: config_file_path
+        type: string
+        description: Cluster config file for Kubernetes cluster.
+      - name: namespace
+        moduleRef:
+          id: namespace
+          output: name
+        type: string
+        description: The namespace where the sealed secret will be deployed
+        default: sealed-secrets
+        optional: true
     version: v1.1.0
     outputs:
       - name: private_key
