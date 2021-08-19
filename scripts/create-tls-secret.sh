@@ -5,7 +5,7 @@ SECRET_NAME="$2"
 
 if [[ -z "${PRIVATE_KEY}" ]] || [[ -z "${CERT}" ]]; then
   echo "PRIVATE_KEY and CERT values must be provided as environment variables"
-  exit 1
+  exit 0
 fi
 
 if [[ -z "${TMP_DIR}" ]]; then
