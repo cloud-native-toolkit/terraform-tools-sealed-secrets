@@ -11,6 +11,12 @@ resource random_string suffix {
   number  = true
 }
 
+module setup_clis {
+  source = "github.com/cloud-native-toolkit/terraform-util-clis.git"
+
+  clis = ["helm"]
+}
+
 resource null_resource create_namespace {
   triggers = {
     kubeconfig = var.cluster_config_file
@@ -69,6 +75,7 @@ resource null_resource create_instance {
   triggers = {
     namespace = var.namespace
     kubeconfig = var.cluster_config_file
+    bin_dir = module.setup_clis.bin_dir
   }
 
   provisioner "local-exec" {
@@ -76,6 +83,7 @@ resource null_resource create_instance {
 
     environment = {
       KUBECONFIG = self.triggers.kubeconfig
+      BIN_DIR = self.triggers.bin_dir
     }
   }
 
@@ -86,6 +94,7 @@ resource null_resource create_instance {
 
     environment = {
       KUBECONFIG = self.triggers.kubeconfig
+      BIN_DIR = self.triggers.bin_dir
     }
   }
 }

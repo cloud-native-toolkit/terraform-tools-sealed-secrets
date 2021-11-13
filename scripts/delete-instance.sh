@@ -5,24 +5,21 @@ CONFIG_DIR=$(cd "${SCRIPT_DIR}/../config"; pwd -P)
 
 NAMESPACE="$1"
 
-BIN_DIR="./dir"
+if [[ -z "${BIN_DIR}" ]]; then
+  mkdir -p ./bin
+  BIN_DIR=$(cd ./bin; pwd -P)
+fi
 
-mkdir -p "${BIN_DIR}"
-
-HELM=$(command -v helm || command -v ./bin/helm)
+HELM=$(command -v helm || command -v ${BIN_DIR}/helm)
 
 if [[ -z "${HELM}" ]]; then
   curl -sLo helm.tar.gz https://get.helm.sh/helm-v3.6.1-linux-amd64.tar.gz
   tar xzf helm.tar.gz
-  mkdir -p ./bin && mv ./linux-amd64/helm ./bin/helm
+  mv ./linux-amd64/helm ${BIN_DIR}/helm
   rm -rf linux-amd64
   rm helm.tar.gz
 
-  HELM="$(cd ./bin; pwd -P)/helm"
+  HELM="${BIN_DIR}/helm"
 fi
 
-${HELM} template sealed-secrets sealed-secrets \
-  --repo https://bitnami-labs.github.io/sealed-secrets \
-  --namespace "${NAMESPACE}" \
-  --values "${CONFIG_DIR}/instance-values.yaml" | \
-  kubectl delete -n "${NAMESPACE}" -f -
+${HELM} uninstall sealed-secrets -n "${NAMESPACE}"
