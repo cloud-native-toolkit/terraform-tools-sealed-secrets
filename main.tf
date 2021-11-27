@@ -79,7 +79,7 @@ resource null_resource create_instance {
   }
 
   provisioner "local-exec" {
-    command = "${path.module}/scripts/create-instance.sh ${self.triggers.namespace}"
+    command = "${path.module}/scripts/create-instance.sh ${self.triggers.namespace} ${var.chart_version}"
 
     environment = {
       KUBECONFIG = self.triggers.kubeconfig
