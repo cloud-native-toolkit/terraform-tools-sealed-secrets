@@ -2,10 +2,9 @@
 
 
 SCRIPT_DIR=$(cd $(dirname "$0"); pwd -P)
-CONFIG_DIR=$(cd "${SCRIPT_DIR}/../config"; pwd -P)
+CHART_DIR=$(cd "${SCRIPT_DIR}/../charts"; pwd -P)
 
 NAMESPACE="$1"
-VERSION="$2"
 
 if [[ -z "${BIN_DIR}" ]]; then
   mkdir -p ./bin
@@ -29,11 +28,10 @@ if [[ -z "${HELM}" ]]; then
 fi
 
 echo "Installing sealed secrets controller"
-${HELM} upgrade -i sealed-secrets sealed-secrets \
-  --repo https://bitnami-labs.github.io/sealed-secrets \
-  --version "${VERSION}" \
-  -n "${NAMESPACE}" \
-  -f "${CONFIG_DIR}/instance-values.yaml"
+${HELM} upgrade -i \
+  sealed-secrets \
+  "${CHART_DIR}/sealed-secrets" \
+  -n "${NAMESPACE}"
 
 echo "Waiting for deployment/sealed-secrets in ${NAMESPACE}"
 kubectl rollout status deployment sealed-secrets -n "${NAMESPACE}" || \

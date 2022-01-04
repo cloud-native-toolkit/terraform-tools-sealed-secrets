@@ -1,0 +1,9 @@
+dependencies:
+- name: sealed-secrets
+  repository: https://bitnami-labs.github.io/sealed-secrets
+  version: 2.0.2
+- name: service-account
+  repository: https://charts.cloudnativetoolkit.dev/
+  version: 0.6.0
+digest: sha256:7e37d645610eaed673aa55ba51e16a6dd6a5a25ad4df736172f38bfd3826585d
+generated: "2022-01-04T16:21:45.645063-06:00"

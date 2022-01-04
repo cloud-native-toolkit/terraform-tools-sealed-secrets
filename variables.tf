@@ -20,9 +20,3 @@ variable "namespace" {
   description = "The namespace where the sealed secret will be deployed"
   default     = "sealed-secrets"
 }
-
-variable "chart_version" {
-  type        = string
-  description = "The helm chart version"
-  default     = "2.0.2"
-}
