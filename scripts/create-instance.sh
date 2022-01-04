@@ -36,4 +36,6 @@ ${HELM} upgrade -i sealed-secrets sealed-secrets \
   -f "${CONFIG_DIR}/instance-values.yaml"
 
 echo "Waiting for deployment/sealed-secrets in ${NAMESPACE}"
-kubectl rollout status deployment sealed-secrets -n "${NAMESPACE}"
+kubectl rollout status deployment sealed-secrets -n "${NAMESPACE}" || \
+  kubectl -n "${NAMESPACE}" describe deployment sealed-secrets && \
+  exit 1
