@@ -37,5 +37,5 @@ ${HELM} upgrade -i sealed-secrets sealed-secrets \
 
 echo "Waiting for deployment/sealed-secrets in ${NAMESPACE}"
 kubectl rollout status deployment sealed-secrets -n "${NAMESPACE}" || \
-  kubectl -n "${NAMESPACE}" describe deployment sealed-secrets && \
+  kubectl -n "${NAMESPACE}" get events && \
   exit 1
