@@ -2,6 +2,8 @@
 
 SCRIPT_DIR=$(cd $(dirname "$0"); pwd -P)
 
+BIN_DIR=$(cat .bin_dir)
+
 if [[ -f .kubeconfig ]]; then
   KUBECONFIG=$(cat .kubeconfig)
 else
@@ -18,10 +20,10 @@ CLUSTER_TYPE="$1"
 NAMESPACE="$2"
 NAME="$3"
 
-
 echo "Verifying resources in ${NAMESPACE} namespace for module ${NAME}"
 
-PODS=$(kubectl get -n "${NAMESPACE}" pods -o jsonpath='{range .items[*]}{.status.phase}{": "}{.kind}{"/"}{.metadata.name}{"\n"}{end}' | grep -v "Running" | grep -v "Succeeded")
+echo "  Checking pods"
+PODS=$(${BIN_DIR}/kubectl get -n "${NAMESPACE}" pods -o jsonpath='{range .items[*]}{.status.phase}{": "}{.kind}{"/"}{.metadata.name}{"\n"}{end}' | grep -v "Running" | grep -v "Succeeded")
 POD_STATUSES=$(echo "${PODS}" | sed -E "s/(.*):.*/\1/g")
 if [[ -n "${POD_STATUSES}" ]]; then
   echo "  Pods have non-success statuses: ${PODS}"
@@ -30,10 +32,11 @@ fi
 
 set -e
 
+echo "  Checking ingress/route"
 if [[ "${CLUSTER_TYPE}" == "kubernetes" ]] || [[ "${CLUSTER_TYPE}" =~ iks.* ]]; then
-  ENDPOINTS=$(kubectl get ingress -n "${NAMESPACE}" -o jsonpath='{range .items[*]}{range .spec.rules[*]}{.host}{"\n"}{end}{end}')
+  ENDPOINTS=$(${BIN_DIR}/kubectl get ingress -n "${NAMESPACE}" -o jsonpath='{range .items[*]}{range .spec.rules[*]}{.host}{"\n"}{end}{end}')
 else
-  ENDPOINTS=$(kubectl get route -n "${NAMESPACE}" -o jsonpath='{range .items[*]}{.spec.host}{.spec.path}{"\n"}{end}')
+  ENDPOINTS=$(${BIN_DIR}/kubectl get route -n "${NAMESPACE}" -o jsonpath='{range .items[*]}{.spec.host}{.spec.path}{"\n"}{end}')
 fi
 
 echo "Validating endpoints:"
@@ -49,7 +52,7 @@ echo "Endpoints validated"
 
 if [[ "${CLUSTER_TYPE}" =~ ocp4 ]] && [[ -n "${CONSOLE_LINK_NAME}" ]]; then
   echo "Validating consolelink"
-  if [[ $(kubectl get consolelink "${CONSOLE_LINK_NAME}" | wc -l) -eq 0 ]]; then
+  if [[ $(${BIN_DIR}/kubectl get consolelink "${CONSOLE_LINK_NAME}" | wc -l) -eq 0 ]]; then
     echo "   ConsoleLink not found"
     exit 1
   fi

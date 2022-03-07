@@ -7,24 +7,19 @@ CHART_DIR=$(cd "${SCRIPT_DIR}/../charts"; pwd -P)
 NAMESPACE="$1"
 
 if [[ -z "${BIN_DIR}" ]]; then
-  mkdir -p ./bin
-  BIN_DIR=$(cd ./bin; pwd -P)
+  BIN_DIR="/usr/local/bin"
 fi
 
-HELM=$(command -v helm || command -v "${BIN_DIR}/helm")
-
+HELM=$(command -v "${BIN_DIR}/helm" || command -v helm)
 if [[ -z "${HELM}" ]]; then
-  curl -sLo helm3.tar.gz https://get.helm.sh/helm-v3.6.1-linux-amd64.tar.gz
+  echo "helm cli not found" >&2
+  exit 1
+fi
 
-  HELM=$(command -v helm || command -v "${BIN_DIR}/helm")
-  if [[ -z "${HELM}" ]]; then
-    tar xzf helm3.tar.gz
-    cp ./linux-amd64/helm "${BIN_DIR}/helm"
-    rm -rf linux-amd64
-    rm helm3.tar.gz
-
-    HELM="${BIN_DIR}/helm"
-  fi
+KUBECTL=$(command -v "${BIN_DIR}/kubectl" || command -v kubectl)
+if [[ -z "${KUBECTL}" ]]; then
+  echo "kubectl cli not found" >&2
+  exit 1
 fi
 
 echo "Installing sealed secrets controller"
@@ -34,4 +29,4 @@ ${HELM} upgrade -i \
   -n "${NAMESPACE}"
 
 echo "Waiting for deployment/sealed-secrets in ${NAMESPACE}"
-kubectl rollout status deployment sealed-secrets -n "${NAMESPACE}"
+${KUBECTL} rollout status deployment sealed-secrets -n "${NAMESPACE}"

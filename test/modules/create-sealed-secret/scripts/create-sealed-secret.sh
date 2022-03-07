@@ -14,19 +14,25 @@ if [[ -z "${SECRET_NAME}" ]] || [[ -z "${SECRET_VALUE}" ]] || [[ -z "${SEALED_SE
   exit 1
 fi
 
+if [[ -z "${BIN_DIR}" ]]; then
+  BIN_DIR="/usr/local/bin"
+fi
+
 SEALED_SECRET_DIR=$(cd $(dirname "${SEALED_SECRET_FILE}"); pwd -P)
 mkdir -p "${SEALED_SECRET_DIR}"
 
-BIN_DIR="${MODULE_DIR}/bin"
-mkdir -p "${BIN_DIR}"
-
-KUBESEAL=$(command -v kubeseal || command -v "${BIN_DIR}/kubeseal")
+KUBESEAL=$(command -v "${BIN_DIR}/kubeseal" || command -v kubeseal)
 if [[ -z "${KUBESEAL}" ]]; then
-  curl -Lso "${BIN_DIR}/kubeseal" https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.16.0/kubeseal-linux-amd64
-  chmod +x "${BIN_DIR}/kubeseal"
-  KUBESEAL="${BIN_DIR}/kubeseal"
+  echo "kubeseal cli not found"
+  exit 1
 fi
 
-echo -n "${SECRET_VALUE}" | kubectl create secret generic -n "${NAMESPACE}" "${SECRET_NAME}" --dry-run=client --from-file=test=/dev/stdin -o json | \
+KUBECTL=$(command -v "${BIN_DIR}/kubectl" || command -v kubectl)
+if [[ -z "${KUBECTL}" ]]; then
+  echo "kubectl cli not found"
+  exit 1
+fi
+
+echo -n "${SECRET_VALUE}" | ${KUBECTL} create secret generic -n "${NAMESPACE}" "${SECRET_NAME}" --dry-run=client --from-file=test=/dev/stdin -o json | \
   ${KUBESEAL} --cert "${SEALED_SECRET_CERT_FILE}" > "${SEALED_SECRET_FILE}"
 

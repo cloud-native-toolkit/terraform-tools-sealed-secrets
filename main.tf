@@ -14,17 +14,18 @@ resource random_string suffix {
 module setup_clis {
   source = "github.com/cloud-native-toolkit/terraform-util-clis.git"
 
-  clis = ["helm"]
+  clis = ["helm", "oc", "kubectl"]
 }
 
 resource null_resource create_namespace {
   triggers = {
     kubeconfig = var.cluster_config_file
     namespace = var.namespace
+    bin_dir = module.setup_clis.bin_dir
   }
 
   provisioner "local-exec" {
-    command = "if ! oc get namespace '${self.triggers.namespace}' 1> /dev/null 2> /dev/null; then oc new-project '${self.triggers.namespace}' && oc label namespace '${self.triggers.namespace}' created-by=sealed-secret-module || echo 'Already exists'; fi"
+    command = "if ! ${self.triggers.bin_dir}/oc get namespace '${self.triggers.namespace}' 1> /dev/null 2> /dev/null; then ${self.triggers.bin_dir}/oc new-project '${self.triggers.namespace}' && ${self.triggers.bin_dir}/oc label namespace '${self.triggers.namespace}' created-by=sealed-secret-module || echo 'Already exists'; fi"
 
     environment = {
       KUBECONFIG = self.triggers.kubeconfig
@@ -34,7 +35,11 @@ resource null_resource create_namespace {
   provisioner "local-exec" {
     when = destroy
 
-    command = "if [ $(kubectl get namespace -l created-by=sealed-secret-module | grep -qc ${self.triggers.namespace}) -gt 0 ]; then oc delete project ${self.triggers.namespace}; else echo 'Namespace created by someone else: ${self.triggers.namespace}'; fi"
+    command = "if [ $(${self.triggers.bin_dir}/oc get namespace -l created-by=sealed-secret-module | grep -qc ${self.triggers.namespace}) -gt 0 ]; then ${self.triggers.bin_dir}/oc delete project ${self.triggers.namespace}; else echo 'Namespace created by someone else: ${self.triggers.namespace}'; fi"
+
+    environment = {
+      KUBECONFIG = self.triggers.kubeconfig
+    }
   }
 }
 
@@ -45,12 +50,14 @@ resource null_resource create_tls_secret {
     kubeconfig = var.cluster_config_file
     namespace = var.namespace
     secret_name = local.secret_name
+    bin_dir = module.setup_clis.bin_dir
   }
 
   provisioner "local-exec" {
     command = "${path.module}/scripts/create-tls-secret.sh ${self.triggers.namespace} ${self.triggers.secret_name}"
 
     environment = {
+      BIN_DIR = self.triggers.bin_dir
       KUBECONFIG  = self.triggers.kubeconfig
       PRIVATE_KEY = var.private_key
       CERT        = var.cert
@@ -63,6 +70,7 @@ resource null_resource create_tls_secret {
     command = "${path.module}/scripts/delete-tls-secret.sh ${self.triggers.namespace} ${self.triggers.secret_name}"
 
     environment = {
+      BIN_DIR = self.triggers.bin_dir
       KUBECONFIG = self.triggers.kubeconfig
     }
   }
