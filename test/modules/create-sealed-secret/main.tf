@@ -25,6 +25,7 @@ resource null_resource create_sealed_secret {
 
     environment = {
       BIN_DIR = module.setup_clis.bin_dir
+      KUBECONFIG = var.kubeconfig
     }
   }
 }
