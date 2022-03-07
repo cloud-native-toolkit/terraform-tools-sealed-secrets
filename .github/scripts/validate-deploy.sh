@@ -20,10 +20,9 @@ CLUSTER_TYPE="$1"
 NAMESPACE="$2"
 NAME="$3"
 
-KUBECTL="${BIN_DIR}/kubectl"
-
 echo "Verifying resources in ${NAMESPACE} namespace for module ${NAME}"
 
+echo "  Checking pods"
 PODS=$(${BIN_DIR}/kubectl get -n "${NAMESPACE}" pods -o jsonpath='{range .items[*]}{.status.phase}{": "}{.kind}{"/"}{.metadata.name}{"\n"}{end}' | grep -v "Running" | grep -v "Succeeded")
 POD_STATUSES=$(echo "${PODS}" | sed -E "s/(.*):.*/\1/g")
 if [[ -n "${POD_STATUSES}" ]]; then
@@ -33,6 +32,7 @@ fi
 
 set -e
 
+echo "  Checking ingress/route"
 if [[ "${CLUSTER_TYPE}" == "kubernetes" ]] || [[ "${CLUSTER_TYPE}" =~ iks.* ]]; then
   ENDPOINTS=$(${BIN_DIR}/kubectl get ingress -n "${NAMESPACE}" -o jsonpath='{range .items[*]}{range .spec.rules[*]}{.host}{"\n"}{end}{end}')
 else
