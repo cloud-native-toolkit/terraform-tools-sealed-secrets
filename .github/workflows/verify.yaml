@@ -13,12 +13,12 @@ jobs:
   verify:
     if: ${{ !contains( github.event.pull_request.labels.*.name, 'skip ci' ) }}
     runs-on: ubuntu-latest
-    container: quay.io/ibmgaragecloud/cli-tools:v0.15
+    container: quay.io/cloudnativetoolkit/terraform:v1.1
 
     strategy:
       matrix:
         testcase: [ocp4_latest]
-      #      max-parallel: 1
+      #max-parallel: 1
       fail-fast: false
 
     env:

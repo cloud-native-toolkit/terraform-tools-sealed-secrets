@@ -5,20 +5,13 @@ SCRIPT_DIR=$(cd $(dirname "$0"); pwd -P)
 NAMESPACE="$1"
 
 if [[ -z "${BIN_DIR}" ]]; then
-  mkdir -p ./bin
-  BIN_DIR=$(cd ./bin; pwd -P)
+  BIN_DIR="/usr/local/bin"
 fi
 
-HELM=$(command -v helm || command -v ${BIN_DIR}/helm)
-
+HELM=$(command -v "${BIN_DIR}/helm" || command -v helm)
 if [[ -z "${HELM}" ]]; then
-  curl -sLo helm.tar.gz https://get.helm.sh/helm-v3.6.1-linux-amd64.tar.gz
-  tar xzf helm.tar.gz
-  mv ./linux-amd64/helm ${BIN_DIR}/helm
-  rm -rf linux-amd64
-  rm helm.tar.gz
-
-  HELM="${BIN_DIR}/helm"
+  echo "helm cli not found" >&2
+  exit 1
 fi
 
 ${HELM} uninstall sealed-secrets -n "${NAMESPACE}"

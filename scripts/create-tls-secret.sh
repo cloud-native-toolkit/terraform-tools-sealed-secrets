@@ -13,12 +13,22 @@ if [[ -z "${TMP_DIR}" ]]; then
 fi
 mkdir -p "${TMP_DIR}"
 
+if [[ -z "${BIN_DIR}" ]]; then
+  BIN_DIR="/usr/local/bin"
+fi
+
+KUBECTL=$(command -v "${BIN_DIR}/kubectl" || command -v kubectl)
+if [[ -z "${KUBECTL}" ]]; then
+  echo "kubectl cli not found" >&2
+  exit 1
+fi
+
 PRIVATE_KEY_FILE="${TMP_DIR}/private.key"
 CERT_FILE="${TMP_DIR}/cert.key"
 
 echo "${PRIVATE_KEY}" > "${PRIVATE_KEY_FILE}"
 echo "${CERT}" > "${CERT_FILE}"
 
-kubectl create secret tls "${SECRET_NAME}" --cert="${CERT_FILE}" --key="${PRIVATE_KEY_FILE}" --dry-run=client -o yaml | \
-  kubectl label -f - sealedsecrets.bitnami.com/sealed-secrets-key=active --local=true --dry-run=client -o yaml | \
-  kubectl create -n "${NAMESPACE}" -f -
+${KUBECTL} create secret tls "${SECRET_NAME}" --cert="${CERT_FILE}" --key="${PRIVATE_KEY_FILE}" --dry-run=client -o yaml | \
+  ${KUBECTL} label -f - sealedsecrets.bitnami.com/sealed-secrets-key=active --local=true --dry-run=client -o yaml | \
+  ${KUBECTL} create -n "${NAMESPACE}" -f -
