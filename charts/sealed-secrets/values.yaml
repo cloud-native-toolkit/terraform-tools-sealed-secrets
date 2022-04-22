@@ -31,8 +31,8 @@ sealed-secrets:
     name: sealed-secrets
   image:
     pullPolicy: IfNotPresent
-  #  repository: >-
-  #    quay.io/bitnami/sealed-secrets-controller@sha256:8e9a37bb2e1a6f3a8bee949e3af0e9dab0d7dca618f1a63048dc541b5d554985
+    repository: >-
+      registry.hub.docker.com/bitnami/sealed-secrets-controller@sha256:ba6e4a30893cafd8a8e909049f7d2b92e2267ffe48b880232bd9020adf448e48
   secretName: sealed-secret-key
   tolerations: []
   controller:
