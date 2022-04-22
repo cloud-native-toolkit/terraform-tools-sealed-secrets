@@ -6,6 +6,14 @@ The alternative to Sealed Secrets for managing credentials in GitOps is to use s
 
 More information on sealed secrets can be found here - https://github.com/bitnami-labs/sealed-secrets
 
+## ⚠️ Rate limit warning
+
+This module pulls sealed-secret images from Docker Hub, which uses per-IP rate limiting.  For anonymous users, this is rate-limited to 100 image pulls every 6 hours.  For non-anonymous users with free accounts, this is limited to 200 pulls per IP.  For enterprise accounts, this is unlimited.  
+
+More details for Docker rate limiting available at https://docs.docker.com/docker-hub/download-rate-limit/
+
+For non-anonymous usage, you have to use [authenticated pulls](https://docs.docker.com/docker-hub/download-rate-limit/#how-do-i-authenticate-pull-requests).  More details on creating image pull secrets at https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+
 ## Software dependencies
 
 The module depends on the following software components:
