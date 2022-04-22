@@ -9,11 +9,11 @@ on:
       IBMCLOUD_API_KEY:
         required: true
       GIT_ORG:
-        required: false
+        required: true
       GIT_ADMIN_USERNAME:
-        required: false
+        required: true
       GIT_ADMIN_TOKEN:
-        required: false
+        required: true
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:

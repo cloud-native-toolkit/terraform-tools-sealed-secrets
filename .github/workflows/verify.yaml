@@ -5,6 +5,15 @@ name: Verify
 on:
   push:
     branches: [ main ]
+    secrets:
+      IBMCLOUD_API_KEY:
+        required: true
+      GIT_ORG:
+        required: false
+      GIT_ADMIN_USERNAME:
+        required: false
+      GIT_ADMIN_TOKEN:
+        required: false
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
