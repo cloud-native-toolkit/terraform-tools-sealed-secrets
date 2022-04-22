@@ -31,11 +31,13 @@ sealed-secrets:
     name: sealed-secrets
   image:
     pullPolicy: IfNotPresent
-    repository: >-
-      registry.hub.docker.com/bitnami/sealed-secrets-controller@sha256:ba6e4a30893cafd8a8e909049f7d2b92e2267ffe48b880232bd9020adf448e48
+    #repository: >-
+      #registry.hub.docker.com/bitnami/sealed-secrets-controller@sha256:ba6e4a30893cafd8a8e909049f7d2b92e2267ffe48b880232bd9020adf448e48
   secretName: sealed-secret-key
   tolerations: []
   controller:
     create: true
   priorityClassName: ''
   podAnnotations: {}
+sealed-secrets:
+
