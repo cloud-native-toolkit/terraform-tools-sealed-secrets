@@ -2,6 +2,7 @@
 
 NAMESPACE="$1"
 SECRET_NAME="$2"
+CREATED_BY="$3"
 
 if [[ -z "${PRIVATE_KEY}" ]] || [[ -z "${CERT}" ]]; then
   echo "PRIVATE_KEY and CERT values must be provided as environment variables"
@@ -13,12 +14,11 @@ if [[ -z "${TMP_DIR}" ]]; then
 fi
 mkdir -p "${TMP_DIR}"
 
-if [[ -z "${BIN_DIR}" ]]; then
-  BIN_DIR="/usr/local/bin"
+if [[ -n "${BIN_DIR}" ]]; then
+  export PATH="${BIN_DIR}:${PATH}"
 fi
 
-KUBECTL=$(command -v "${BIN_DIR}/kubectl" || command -v kubectl)
-if [[ -z "${KUBECTL}" ]]; then
+if ! command -v kubectl 1> /dev/null 2> /dev/null; then
   echo "kubectl cli not found" >&2
   exit 1
 fi
@@ -29,6 +29,6 @@ CERT_FILE="${TMP_DIR}/cert.key"
 echo "${PRIVATE_KEY}" > "${PRIVATE_KEY_FILE}"
 echo "${CERT}" > "${CERT_FILE}"
 
-${KUBECTL} create secret tls "${SECRET_NAME}" --cert="${CERT_FILE}" --key="${PRIVATE_KEY_FILE}" --dry-run=client -o yaml | \
-  ${KUBECTL} label -f - sealedsecrets.bitnami.com/sealed-secrets-key=active --local=true --dry-run=client -o yaml | \
-  ${KUBECTL} create -n "${NAMESPACE}" -f -
+kubectl create secret tls "${SECRET_NAME}" --cert="${CERT_FILE}" --key="${PRIVATE_KEY_FILE}" --dry-run=client -o yaml | \
+  kubectl label -f - sealedsecrets.bitnami.com/sealed-secrets-key=active "created-by=${CREATED_BY}" --local=true --dry-run=client -o yaml | \
+  kubectl create -n "${NAMESPACE}" -f -

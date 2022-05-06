@@ -4,14 +4,18 @@ SCRIPT_DIR=$(cd $(dirname "$0"); pwd -P)
 
 NAMESPACE="$1"
 
-if [[ -z "${BIN_DIR}" ]]; then
-  BIN_DIR="/usr/local/bin"
+if [[ "${SKIP}" == "true" ]]; then
+  echo "Skipping destroy of sealed secrets"
+  exit 0
 fi
 
-HELM=$(command -v "${BIN_DIR}/helm" || command -v helm)
-if [[ -z "${HELM}" ]]; then
+if [[ -n "${BIN_DIR}" ]]; then
+  export PATH="${BIN_DIR}:${PATH}"
+fi
+
+if ! command -v helm 1> /dev/null 2> /dev/null; then
   echo "helm cli not found" >&2
   exit 1
 fi
 
-${HELM} uninstall sealed-secrets -n "${NAMESPACE}"
+helm uninstall sealed-secrets -n "${NAMESPACE}"
