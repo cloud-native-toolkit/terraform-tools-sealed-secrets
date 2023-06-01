@@ -10,6 +10,61 @@ tags:
 versions:
   - platforms:
       - ocp4
+    providers:
+      - name: clis
+        source: cloud-native-toolkit/clis
+    dependencies:
+      - id: cluster
+        interface: github.com/cloud-native-toolkit/automation-modules#cluster
+        refs: []
+      - id: namespace
+        refs:
+          - source: github.com/ibm-garage-cloud/terraform-k8s-namespace
+            version: '>= 2.1.0'
+      - id: cert
+        refs:
+          - source: github.com/cloud-native-toolkit/terraform-util-sealed-secret-cert
+            version: '>= 0.0.0'
+    variables:
+      - name: cert
+        type: string
+        description: >-
+          The public key that will be used to encrypt sealed secrets. If not
+          provided, a new one will be generated
+        default: ''
+        moduleRef:
+          id: cert
+          output: cert
+      - name: private_key
+        type: string
+        description: >-
+          The private key that will be used to decrypt sealed secrets. If not
+          provided, a new one will be generated
+        default: ''
+        moduleRef:
+          id: cert
+          output: private_key
+      - name: cluster_config_file
+        type: string
+        description: Cluster config file for Kubernetes cluster.
+        moduleRef:
+          id: cluster
+          output: config_file_path
+      - name: namespace
+        type: string
+        description: The namespace where the sealed secret will be deployed
+        default: sealed-secrets
+        moduleRef:
+          id: namespace
+          output: name
+    version: v1.2.1
+    outputs:
+      - name: private_key
+        sensitive: true
+      - name: cert
+      - name: namespace
+  - platforms:
+      - ocp4
     dependencies:
       - id: cluster
         refs:
