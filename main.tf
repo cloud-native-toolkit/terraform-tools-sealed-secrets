@@ -10,19 +10,17 @@ resource random_string suffix {
   special = false
   lower   = true
   upper   = false
-  number  = true
+  numeric = true
 }
 
-module setup_clis {
-  source = "github.com/cloud-native-toolkit/terraform-util-clis.git"
-
+data clis_check clis {
   clis = ["helm", "oc", "kubectl", "kustomize"]
 }
 
 resource random_string random {
   length           = 16
   lower            = true
-  number           = true
+  numeric          = true
   upper            = false
   special          = false
 }
@@ -31,7 +29,7 @@ resource null_resource create_namespace {
   triggers = {
     kubeconfig = var.cluster_config_file
     namespace = var.namespace
-    bin_dir = module.setup_clis.bin_dir
+    bin_dir = data.clis_check.clis.bin_dir
     label = local.created_by
   }
 
@@ -61,7 +59,7 @@ resource null_resource create_tls_secret {
     kubeconfig = var.cluster_config_file
     namespace = var.namespace
     secret_name = local.secret_name
-    bin_dir = module.setup_clis.bin_dir
+    bin_dir = data.clis_check.clis.bin_dir
   }
 
   provisioner "local-exec" {
@@ -93,7 +91,7 @@ data external check_for_instance {
   query = {
     kube_config = var.cluster_config_file
     namespace = var.namespace
-    bin_dir = module.setup_clis.bin_dir
+    bin_dir = data.clis_check.clis.bin_dir
     created_by = local.created_by
   }
 }
@@ -105,7 +103,7 @@ resource null_resource create_instance {
   triggers = {
     namespace = var.namespace
     kubeconfig = var.cluster_config_file
-    bin_dir = module.setup_clis.bin_dir
+    bin_dir = data.clis_check.clis.bin_dir
     tmp_dir = local.tmp_dir
     skip = data.external.check_for_instance.result.exists
   }
